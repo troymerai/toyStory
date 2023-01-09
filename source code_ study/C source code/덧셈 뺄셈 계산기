@@ -1,0 +1,37 @@
+#include <stdio.h>
+#include <string.h>
+
+int main()
+{
+	char str[1000];
+	printf(">> ");
+	//scanf_s("%s", str, 200);
+	gets_s(str);
+	int i = 0;
+	int num;
+	int sum = 0;
+	int flag = 1;
+	while (1)
+	{
+		num = 0;
+		while (str[i] >= '0' && str[i] <= '9')
+		{
+			num *= 10;
+			num += str[i] - '0';
+			i++;
+		}
+		sum += flag*num;
+		if (str[i] == 0)
+			break;
+		if (str[i] == '+')
+		{
+			flag = 1;
+		}
+		if (str[i] == '-')
+		{
+			flag = -1;
+		}
+		i++;
+	}
+	printf("%d\n", sum);
+}

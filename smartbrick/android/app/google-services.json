@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "98189055342",
+    "project_id": "m1-smartbrick",
+    "storage_bucket": "m1-smartbrick.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:98189055342:android:681bfdf46914d4fcca5d7f",
+        "android_client_info": {
+          "package_name": "com.example.smartbrick"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "98189055342-5pb7310chjhg2j6oa086nfcc11jvqq8l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyASgLRLMtYTc9264t_biWucbZNyqH1bDGY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "98189055342-5pb7310chjhg2j6oa086nfcc11jvqq8l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

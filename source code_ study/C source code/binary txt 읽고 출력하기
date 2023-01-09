@@ -1,0 +1,21 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+
+# define MAX 10000
+int main()
+{
+	int num[MAX] = { 0, };
+	int i = 0;
+	printf("data is ");
+
+	FILE* data = fopen("c:\\data.txt", "rb");
+	while(fscanf(data, "%d", &num[i]) != EOF)
+	{
+		printf("%d ", num[i]);
+		i++;
+	}
+		fclose(data);
+
+	return 0;
+}
+

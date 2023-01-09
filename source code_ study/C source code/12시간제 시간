@@ -1,0 +1,63 @@
+#include <stdio.h>
+
+int main(void)
+{
+	while (1)
+	{
+		int time = 0;
+		int days = 0;
+		int hours = 0;
+		int minutes = 0;
+		int seconds = 0;
+
+		printf("Enter a seconds >> ");
+		scanf_s("%d", &time);
+
+		if (time == 0)
+		{
+			break;
+		}
+
+		if (time < 60)
+		{
+			printf("  %ds\n\n", time);
+		}
+		else if (time < 3600)
+		{
+
+			minutes = time / 60;
+			seconds = time - minutes * 60;
+			
+				printf("  %dm%ds\n\n", minutes, seconds);
+
+		}
+		else if (time < 86400)
+		{
+
+			hours = time / 3600;
+			minutes = (time - hours * 3600) / 60;
+			seconds = (time - hours * 3600) % 60;
+			if (seconds == 0)
+			{
+				printf("  %dh%dm\n\n", hours, minutes);
+			}
+			else
+			{
+				printf("  %dh%dm%ds\n\n", hours, minutes, seconds);
+			}
+		}
+		else if (time >= 86400)
+		{
+			days = time / 86400;
+			hours = (time - days * 86400) / 3600;
+			minutes = (time - days * 86400 - hours * 3600) / 60;
+			seconds = (time - days * 86400 - hours * 3600) % 60;
+
+			printf("  %dd%dh%dm%ds\n\n", days, hours, minutes, seconds);
+		}
+	}
+
+	printf(" ");
+
+	return 0;
+}

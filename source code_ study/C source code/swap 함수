@@ -1,0 +1,22 @@
+#include <stdio.h>
+
+void swap(int *a, int *b)
+{
+	int temp = 0;
+
+	temp = *a;
+	*a = *b;
+	*b = temp;
+}
+
+int main(void)
+{
+	int a = 3;
+	int b = 2;
+	
+	swap(&a, &b);
+	printf("%d%d", a, b);
+
+}
+
+// void 값은 반환하는 값이 없으므로, swap함수를 main함수에서 쓰면 a, b값이 바뀌므로 그냥 a, b를 출력해주면 된다.

@@ -1,0 +1,56 @@
+#include <stdio.h>
+
+int main()
+{
+	int n1, n2, n3 = 0;
+	int max = 0;
+	int rest = 0;
+	int side1, side2 = 0;
+	while (1)
+	{
+		printf("enter three integers >> ");
+		scanf_s("%d %d %d", &n1, &n2, &n3);
+		if (n1 >= n2 && n1 >= n3)
+		{
+			max = n1;
+			side1 = n2;
+			side2 = n3;
+			rest = n2 + n3;
+		}
+		if (n2 >= n1 && n2 >= n3)
+		{
+			max = n2;
+			side1 = n1;
+			side2 = n3;
+			rest = n1 + n3;
+		}
+		if (n3 >= n1 && n3 >= n2)
+		{
+			max = n3;
+			side1 = n1;
+			side2 = n2;
+			rest = n1 + n2;
+		}
+		if (max > rest)
+		{
+			break;
+		}
+		if (max* max == side1 * side1 + side2 * side2)
+		{
+			printf("Result >> right\n");
+		}
+		if (max * max > side1 * side1 + side2 * side2)
+		{
+			printf("Result >> obtuse\n");
+		}
+		if (max * max < side1 * side1 + side2 * side2)
+		{
+			printf("Result >> acute\n");
+		}
+	}
+
+	printf(" ");
+
+
+	return 0;
+}

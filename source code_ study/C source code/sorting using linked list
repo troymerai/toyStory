@@ -1,0 +1,71 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct Node
+{
+    char name[100];
+    char number[100];
+    struct Node *next;
+};
+
+int main()
+{
+    struct Node *head = (struct Node *)malloc(sizeof(struct Node));
+    struct Node *tail = (struct Node *)malloc(sizeof(struct Node));
+    struct Node *cur;
+    char name[100] = "";
+    char number[100] = "";
+    head->next = tail;
+    tail->next = NULL;
+
+    FILE *fp = fopen("data.txt", "r");
+    printf("READ FILE <NAME> <PHONE NUMBER>-------------\n");
+    while (fscanf(fp, "%s %s", name, number) != EOF)
+    {
+        printf("%s %s\n", name, number);
+        struct Node *newnode = (struct Node *)malloc(sizeof(struct Node));
+        strcpy(newnode->name, name);
+        strcpy(newnode->number, number);
+
+        cur = head;
+
+        if (head->next == tail)
+        {
+            newnode->next = tail;
+            head->next = newnode;
+        }
+        else
+        {
+            while (strcmp(newnode->name, cur->next->name) > 0)
+            {
+                cur = cur->next;
+            }
+
+            newnode->next = cur->next;
+            cur->next = newnode;
+        }
+    }
+    printf("SORTED-------------\n");
+    cur = head->next;
+    while (cur != tail)
+    {
+        printf("%s\n", cur->name);
+        cur = cur->next;
+    }
+
+    printf("Find Person-----------------\n");
+    char target[100] = "";
+    scanf("%s", target);
+    cur = head;
+    while (cur != tail)
+    {
+        if (strcmp(target, cur->name) == 0)
+        {
+            printf("%s", cur->number);
+            break;
+        }
+        cur = cur->next;
+    }
+    return 0;
+}

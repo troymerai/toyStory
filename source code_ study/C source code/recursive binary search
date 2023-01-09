@@ -1,0 +1,41 @@
+#include <stdio.h>
+
+int binarysearch(int arr[], int key, int start, int end)
+{
+	if (start > end)
+		return -1;
+
+	int mid = (start + end) / 2;
+	if (key == arr[mid])
+	{
+		return mid;
+	}
+	else if (key > arr[mid])
+	{
+		return binarysearch(arr, key, mid + 1, end);
+	}
+	else if (key < arr[mid])
+	{
+		return binarysearch(arr, key, start, mid - 1);
+	}
+
+}
+
+int main(void)
+{
+	printf("enter numbers >> ");
+	int input = 0;
+	int num = 0;
+	int arr[5];
+
+	for(int i = 0; i<=4;i++)
+	{
+		scanf_s("%d", &input);
+		arr[i] = input;
+	}
+
+	printf("enter number >> ");
+	scanf_s("%d", &num);
+
+	printf("the number is at arr[%d]", binarysearch(arr, num, 0, 4));
+}

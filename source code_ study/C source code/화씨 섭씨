@@ -1,0 +1,44 @@
+#include <stdio.h>
+
+int main(void)
+{
+	
+
+	while (1)
+	{
+		int temperature = 0;
+		char type;
+		char C;
+		char F;
+		double celcius = 0;
+		double fahrenheit = 0;
+
+
+		printf("Enter temperature and type >> ");
+		scanf_s("%d%c", &temperature, &type);
+
+		if (temperature == 0)
+		{
+			break;
+		}
+
+		if (type == 'C')
+		{
+			celcius = temperature;
+			fahrenheit =(float) 9 / 5 * celcius + 32;
+
+			printf("  Celcius= %.1f,  Fahrenheit= %.1f\n\n", celcius, fahrenheit);
+		}
+		if (type == 'F')
+		{
+			fahrenheit = temperature;
+			celcius =(float) 5 / 9 * (fahrenheit - 32);
+
+			printf("  Celcius= %.1f, Fahrenheit= %.1f\n\n", celcius, fahrenheit);
+
+		}
+	}
+
+	printf(" ");
+	return 0;
+}

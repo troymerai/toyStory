@@ -1,0 +1,137 @@
+#include <stdio.h>
+
+void strcat(char* d, char* s)
+{
+	int i = 0;
+	int k = 0;
+	while (1)
+	{
+		if (*(d + i) == 0)
+		{
+			break;
+		}
+		i++;
+	}
+	while (1)
+	{
+		*(d + i) = *(s + k);
+		if (*(s + k) == 0)
+		{
+			break;
+		}
+		i++;
+		k++;
+	}
+}
+
+int strlen(char* e)
+{
+	int i = 0;
+	while (1)
+	{
+		if (*(e + i) == 0)
+		{
+			break;
+		}
+		i++;
+	}
+
+	return i;
+}
+
+int strcmp(char* a, char* b)
+{
+	int i = 0;
+	int k = 0;
+	while (1)
+	{
+		if (*(a + i) == 0)
+		{
+			a[i] = *(a + i);
+			break;
+		}
+		i++;
+	}
+	while (1)
+	{
+		if (*(b + k) == 0)
+		{
+			b[k] = *(b + k);
+			break;
+		}
+	}
+	i = k = 0;
+	int temp[100] = { 0, };
+	while (1)
+	{
+		if (a[i] == 0 && b[k] == 0)
+		{
+			break;
+		}
+		if (a[i] < b[k])
+		{
+			temp[i] = -1;
+		}
+		if (a[i] == b[k])
+		{
+			temp[i] = 0;
+		}
+		if (a[i] > b[k])
+		{
+			temp[i] = 1;
+		}
+		i++;
+		k++;
+	}
+		return temp[i];	
+}
+
+
+void strcpy(char* x, char* y)
+{
+	int i = 0;
+	int k = 0;
+	while (1)
+	{
+		*(x + i) = *(y + k);
+		if (*(x + i) == 0 && *(y + k) == 0)
+		{
+			break;
+		}
+		i++;
+		k++;
+	}
+}
+
+int main()
+{
+	char d[100] = "abc";
+	char s[100] = "fyuocuk";
+
+	strcat(d, s);
+	printf("%s\n", d);
+	////////////////////////////////////
+	char e[100] = "hello";
+
+	printf("%d\n", strlen(e));
+	////////////////////////////////////
+	char a[100] = "hello";
+	char b[100] = "byebye";
+	int temp[100] = { 0, };
+	int i = 0;
+	strcmp(a, b);
+	while (1)
+	{
+		if (temp[i] == 0)
+		{
+			break;
+		}
+		printf("%d ", temp[i]);
+		i++;
+	}
+	///////////////////////////////////
+	char x[100] = "haha";
+	char y[100] = "hehe";
+	strcpy(x, y);
+	printf("%s\n", x);
+}

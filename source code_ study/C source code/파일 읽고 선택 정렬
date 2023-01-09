@@ -1,0 +1,82 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+# define MAX 10000
+
+void select(int arr[])
+{
+	arr[5];
+	int i = 0;
+	while (1)
+	{
+		for (int k = 0; k <= 4; k++)
+		{
+			int max = arr[k - 1];
+			if (max <= arr[k])
+			{
+				continue;
+			}
+			else
+			{
+				arr[k - 1] = arr[k];
+				arr[k] = max;
+			}
+		}
+		if (i == 4)
+		{
+			break;
+		}
+		i++;
+	}
+}
+
+
+int main()
+{
+	FILE* fp1 = NULL, * fp2 = NULL;
+	int num1[5] = { 0, };
+	int num2[5] = { 0, };
+	char text1[MAX];
+	char text2[MAX];
+
+	printf("첫번째 파일 이름: ");
+	FILE* file1 = fopen("c:\\text1.txt", "rb");
+	if (file1 == NULL)
+	{
+		printf("\n파일 열기 실패\n");
+		return 1;
+	}
+
+		fscanf(file1, "%s %d %d %d %d %d", text1, &num1[0], &num1[1], &num1[2], &num1[3], &num1[4]);
+		printf("%s %d %d %d %d %d\n", text1, num1[0], num1[1], num1[2], num1[3], num1[4]);
+	
+
+	printf("\n두번째 파일 이름: ");
+	FILE* file2 = fopen("c:\\text2.txt", "rb");
+		if (file2 == NULL)
+		{
+			printf("\n파일 열기 실패\n");
+			return 1;
+		}
+		fscanf(file2, "%s %d %d %d %d %d", text2, &num2[0], &num2[1], &num2[2], &num2[3], &num2[4]);
+		printf("%s %d %d %d %d %d\n", text2, num2[0], num2[1], num2[2], num2[3], num2[4]);
+
+			select(num1);
+			select(num2);
+		
+
+		for (int i = 0; i <= 4; i++)
+		{
+			printf("%d ", num1[i]);
+		}
+		printf("\n");
+
+		for (int i = 0; i <= 4; i++)
+		{
+			printf("%d ", num2[i]);
+		}
+	fclose(file1);
+	fclose(file2);
+
+	
+	return 0;
+}

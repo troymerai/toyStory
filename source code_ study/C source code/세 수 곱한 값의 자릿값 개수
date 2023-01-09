@@ -1,0 +1,49 @@
+#include <stdio.h>
+
+int main(void)
+{
+	int A = 123;
+	int B = 456;
+	int C = 789;
+	int multiple = 0;
+	int a = 0;
+	int b = 0;
+	int arr[10];
+	int count[10];
+
+	multiple = A * B * C;
+		for (int k = 0; k <= 9; k++)
+		{
+			count[k] = 0;
+		}
+
+	while (1)
+	{
+		a = multiple % 10;
+		b = multiple / 10;
+
+		
+		for (int i = 0; i <= 9; i++)
+		{
+			arr[i] = i;
+		}
+		for (int i = 0; i <= 9; i++)
+		{
+			if (arr[i] == a)
+			{
+				count[arr[i]]++;
+			}
+		}
+		if (b == 0)
+		{
+			break;
+		}
+		multiple = b;
+	}
+	for (int i = 0; i <= 9; i++)
+	{
+		printf("%d ", count[i]);
+	}
+
+
+}

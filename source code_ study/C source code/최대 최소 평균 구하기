@@ -1,0 +1,54 @@
+#include <stdio.h>
+
+int main(void)
+{
+	while (1)
+	{
+		int sum = 0;
+		double average = 0;
+		int first = 0;
+		int second = 0;
+		int n = 0;
+		int i = 1;
+		
+		printf("Enter integers >> ");
+
+		while (1)
+		{
+
+			scanf_s("%d", &n);
+
+			if (n < 0)
+			{
+				break;
+			}
+
+			sum = sum + n;
+			average = (float)sum / i;
+			i++;
+
+			if (n >= first)
+			{
+				second = first;
+				first = n;
+			}
+			else if (n >= second)
+			{
+				second = n;
+			}
+
+		}
+
+		if (first == 0)
+		{
+			break;
+		}
+		printf("  first = %d,   second = %d,   average = %.2f\n\n", first, second, average);
+
+	}
+
+	printf(" ");
+	
+
+	return 0;
+}

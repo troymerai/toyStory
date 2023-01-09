@@ -1,0 +1,45 @@
+#include <stdio.h>
+
+int main(void)
+{
+		int input = 0;
+		int score = 0;
+		int sum = 0;
+		int average = 0;
+		int count = 0;
+		printf("How many students are there? >> ");
+		scanf_s("%d", &input);
+
+		int category[100];
+
+		if (input == 0)
+		{
+			return 0;
+		}
+	
+
+		
+		for (int i = 0; i< input; i++)
+		{
+			printf("What is the score of student number%d? >> ", i);
+			scanf_s("%d", &score);
+			
+			category[i] = score;
+			
+			sum = sum + score;
+			
+		}
+
+	
+	average = sum / input;
+
+	for (int i = 0; i <= input; i++)
+	{
+		if (category[i] > average)
+		{
+			count++;
+		}
+	}
+
+	printf("%d", count);
+}

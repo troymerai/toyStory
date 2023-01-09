@@ -1,0 +1,92 @@
+#pragma warning(disable :4996)
+
+#include <stdio.h>
+#define SIZE 10
+
+// 양쪽 값 변경 
+void swap(int* a, int* b)
+{
+    int temp = *a; *a = *b; *b = temp;
+}
+
+// 퀵소트 함수 
+void quickSort(int numbers[], int left, int right)
+{
+    int i = left, j = right;
+
+    // 중앙값 설정
+    int median;
+    median = (left + right) / 2;
+
+    // 종료 조건 
+    if (left >= right) return;
+    // 피벗값과 중앙값 바꿔주기
+    swap(&numbers[left], &numbers[median]);
+
+    int Pivot;
+    Pivot = numbers[left];
+
+    while (i < j)
+    {
+        // 피벗보다 작은 숫자를 찾아야 돼서 j가 먼저 감소
+        while (Pivot < numbers[j])
+        {
+            j--;
+           // printf("%d\n", Pivot);
+        }
+        while (i < j && Pivot >= numbers[i])
+        {
+            i++;
+            // printf("%d\n", Pivot);
+        }
+        swap(numbers + i, numbers + j);
+    }
+
+    swap(numbers + left, numbers + j);
+
+    quickSort(numbers, left, j - 1);
+    quickSort(numbers, j + 1, right);
+}
+
+int main(void)
+{
+    int k = 0;
+    int n = 0;
+    FILE* fp = NULL;
+    fp = fopen("D:\quick_sort.txt", "r");
+
+    int numbers[10];
+
+    if (fp == NULL)
+    {
+        printf("can't open the file\n");
+        return 0;
+    }
+
+    while (fscanf(fp, "%d", &n) != EOF)
+    {
+        numbers[k] = n;
+        k++;
+    }
+
+    printf("[quick_sort with median version]\n\n");
+
+    printf("정렬 전 : ");
+    for (int i = 0; i < SIZE; i++)
+    {
+        printf("%d ", numbers[i]);
+    }
+    printf("\n");
+
+    quickSort(numbers, 0, SIZE - 1);
+
+    printf("정렬 후 : ");
+    for (int i = 0; i < SIZE; i++)
+    {
+        printf("%d ", numbers[i]);
+    }
+
+    fclose(fp);
+
+    return 0;
+}
