@@ -1,0 +1,168 @@
+#include <stdio.h>
+#include <time.h>
+#define MAX_STACK_SIZE 100
+#define FALSE 0
+#define TRUE 1
+#define EXIT_ROW 12
+#define EXIT_COL 12
+//미로 크기 지정
+#define ROW 14
+#define COL 14
+
+typedef struct {
+  int vert;  // 수직 좌표
+  int horiz; // 수평 좌표
+} offsets;
+
+/** 사방향으로 움직임 */
+offsets move[8] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
+
+typedef struct {
+  short int row;
+  short int col;
+  short int dir;
+} element;
+
+element stack[MAX_STACK_SIZE];
+
+void path(void);
+void push(int *top, element position);
+element pop(int *top);
+
+int top;
+// 미로 변수
+int maze[ROW][COL] = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+                      {1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1},
+                      {1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1},
+                      {1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+                      {1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1},
+                      {1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1},
+                      {1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1},
+                      {1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1},
+                      {1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1},
+                      {1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1},
+                      {1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1},
+                      {1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1},
+                      {1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1},
+                      {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
+
+/** 지나간 길 표시할 변수 */
+int mark[ROW][COL] = {
+    0,
+};
+
+int main() {
+  // 프로그램 시간 측정
+  clock_t start = clock();
+
+  path();
+
+  clock_t end = clock();
+  printf("\n\n소요 시간: %lf\n", (double)(end - start) / CLOCKS_PER_SEC);
+
+  return 0;
+}
+
+void path(void) { // 경로가 있다면 패스 출력
+  int i, row, col, next_row, next_col, dir;
+  int found = FALSE; // 1이면 출구
+  element position;
+  mark[1][1] = 1; // 방문 설정(시작점)
+  top = 0;        // 시작점 스택에 push
+  stack[0].row = 1;
+  stack[0].col = 1;
+  stack[0].dir = 1;
+  while (top > -1 && !found) { // stack에 path가 남아있고 출구를 찾지 못한 상태
+    position = pop(&top); // 스택에서 pop
+    row = position.row;
+    col = position.col;
+    dir = position.dir;
+    while (dir < 4 && !found) // 내 주변의 4방향을 찾아보기
+    {
+      next_row = row + move[dir].vert;
+      next_col = col + move[dir].horiz;
+      if (next_row == EXIT_ROW && next_col == EXIT_COL) // 다음 위치가 EXIT이면
+      {
+        found = TRUE; // 탈출 성공
+      } else if (!maze[next_row][next_col] &&
+                 !mark[next_row]
+                      [next_col]) // 다음위치가 0이면서 방문한적이 없을 때
+      {
+        mark[next_row][next_col] = TRUE;
+        position.row = row;
+        position.col = col;
+        position.dir = ++dir;
+        push(&top, position); // 스택에 현재 위치 저장
+        row = next_row;
+        col = next_col;
+        dir = 0;
+      } else
+        ++dir; // exit이 아니며 갈 수 없는 곳일 때 (방문을 했었거나 벽이거나)
+    }
+  }
+
+  // 출구 찾았을 때, 방문한 길 출력
+  if (found) {
+    printf("\n\n [이동경로를 출력합니다]\n");
+    printf("row col\n");
+    for (i = 0; i <= top; i++)
+      printf("%2d%5d\n", stack[i].row, stack[i].col);
+    printf("%2d%5d\n", row, col);
+    printf("%2d%5d\n", EXIT_ROW, EXIT_COL);
+  } else
+    printf("no path found!!\n"); // 미로 탈출 X
+
+  // 출구 찾았을 때, 방문한 길 지도형태로 출력
+  if (found) {
+    // 스택을 이용하기 위해 초기화
+    for (i = 0; i < ROW; i++) {
+      for (int j = 0; j <= COL; j++) {
+        mark[i][j] = 0;
+      }
+    }
+    printf("\n[이동경로를 지도 형태로 출력합니다]\n\n");
+    for (row = 0; row < ROW; row++) {
+      for (col = 0; col < COL; col++) {
+        if ((row == 1) && (col == 1)) {
+          printf(" S");
+        } else if ((row == ROW - 2) && (col == COL - 2)) {
+          printf(" E");
+        } else {
+          // mark길이 아니면 X 혹은 공백
+          if (mark[row][col] == FALSE) {
+            //벽인 경우에 X표시
+            if (maze[row][col] == 1) {
+              printf("%2c", 'X');
+            }
+            // 벽이 아니면 공백
+            else {
+              printf("%2c", ' ');
+            }
+          } else {
+            printf(" .");
+          }
+        }
+      }
+      printf("\n");
+    }
+  } else
+    printf("----have no path----\n");
+}
+
+void push(int *top, element position) {
+  (*top)++;
+  stack[*top].row = position.row;
+  stack[*top].col = position.col;
+  stack[*top].dir = position.dir;
+}
+
+element pop(int *top) {
+  element result;
+  if (*top < 0) {
+    printf("Stack is Empty.\n");
+  } else {
+    result = stack[*top];
+    (*top)--;
+  }
+  return result;
+}
