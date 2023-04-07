@@ -1,0 +1,130 @@
+#include <ctype.h> // For isdigit() and isalpha()
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define INITIAL_CAPACITY 10
+
+// Struct for the stack
+typedef struct Stack {
+  char *arr;    // Dynamic array to store the elements of the stack
+  int size;     // Number of elements currently in the stack
+  int capacity; // Maximum number of elements the stack can hold
+} Stack;
+
+// Function to initialize a new stack
+Stack *createStack() {
+  Stack *stack = (Stack *)malloc(sizeof(Stack));
+  stack->arr = (char *)malloc(sizeof(char) * INITIAL_CAPACITY);
+  stack->size = 0;
+  stack->capacity = INITIAL_CAPACITY;
+  return stack;
+}
+
+// Function to check if the stack is full
+int isFull(Stack *stack) { return stack->size == stack->capacity; }
+
+// Function to check if the stack is empty
+int isEmpty(Stack *stack) { return stack->size == 0; }
+
+// Function to push an element onto the stack
+void push(Stack *stack, char element) {
+  if (isFull(stack)) {
+    stack->capacity *= 2;
+    stack->arr = (char *)realloc(stack->arr, sizeof(char) * stack->capacity);
+  }
+  stack->arr[stack->size] = element;
+  stack->size++;
+}
+
+// Function to pop an element from the stack
+char pop(Stack *stack) {
+  if (isEmpty(stack)) {
+    printf("Error: stack is empty.\n");
+    return '\0'; // Return '\0' as an error code
+  }
+  stack->size--;
+  return stack->arr[stack->size];
+}
+
+// Function to peek at the top element of the stack
+char peek(Stack *stack) {
+  if (isEmpty(stack)) {
+    return '\0'; // Return '\0' if the stack is empty
+  }
+  return stack->arr[stack->size - 1];
+}
+
+// Function to determine the precedence of an operator
+int precedence(char op) {
+  if (op == '*' || op == '/') {
+    return 2;
+  } else if (op == '+' || op == '-') {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+// Function to convert infix expression to postfix
+void infixToPostfix(char *infix, char *postfix) {
+  Stack *stack = createStack();
+  int i = 0, j = 0;
+  char ch;
+
+  while (infix[i] != '\0') {
+    ch = infix[i];
+
+    if (isalpha(ch) || isdigit(ch)) {
+      postfix[j] = ch;
+      j++;
+    } else if (ch == '(') {
+      push(stack, ch);
+    } else if (ch == ')') {
+      while (peek(stack) != '(') {
+        postfix[j] = pop(stack);
+        j++;
+      }
+      pop(stack); // Remove the '(' from the stack
+    } else {
+      while (!isEmpty(stack) && precedence(ch) <= precedence(peek(stack))) {
+        postfix[j] = pop(stack);
+        j++;
+      }
+      push(stack, ch);
+    }
+
+    i++;
+  }
+
+  while (!isEmpty(stack)) {
+    postfix[j] = pop(stack);
+    j++;
+  }
+
+  postfix[j] = '\0';
+
+  free(stack->arr);
+  free(stack);
+}
+
+// Main function to test the infix to postfix conversion
+int main() {
+
+  // 프로그램 시간 측정
+  clock_t start = clock();
+
+  char infix[100], postfix[100];
+
+  printf("Enter an infix expression: ");
+  scanf("%s", infix);
+
+  infixToPostfix(infix, postfix);
+
+  printf("Postfix expression: %s\n", postfix);
+
+  clock_t end = clock();
+  printf("\n\n소요 시간: %lf\n", (double)(end - start) / CLOCKS_PER_SEC);
+
+  return 0;
+}
