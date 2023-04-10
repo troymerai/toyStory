@@ -1,61 +1,70 @@
 #include <ctype.h> // For isdigit() and isalpha()
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #define INITIAL_CAPACITY 10
 
-// Struct for the stack
 typedef struct Stack {
-  char *arr;    // Dynamic array to store the elements of the stack
-  int size;     // Number of elements currently in the stack
-  int capacity; // Maximum number of elements the stack can hold
+  char *arr;    //스택을 담기위한 배열
+  int index;     //배열(스택)의 위치
+  int capacity; //배열(스택)의 전체 크기
 } Stack;
 
-// Function to initialize a new stack
 Stack *createStack() {
   Stack *stack = (Stack *)malloc(sizeof(Stack));
+  //스택에 MAXSIZE * 문자의 크기의 메모리를 지정
   stack->arr = (char *)malloc(sizeof(char) * INITIAL_CAPACITY);
-  stack->size = 0;
+  //스택의 초기 index를 0으로 지정
+  stack->index = 0;
+  //스택의 크기를 MAXSIZE로 지정
   stack->capacity = INITIAL_CAPACITY;
   return stack;
 }
 
-// Function to check if the stack is full
-int isFull(Stack *stack) { return stack->size == stack->capacity; }
+//스택의 위치가 최대값과 같은지 확인
+int isFull(Stack *stack) { return stack->index == stack->capacity; }
 
-// Function to check if the stack is empty
-int isEmpty(Stack *stack) { return stack->size == 0; }
+//스택의 위치가 0인지 확인
+int isEmpty(Stack *stack) { return stack->index == 0; }
 
-// Function to push an element onto the stack
 void push(Stack *stack, char element) {
+  //스택이 다 찼다면
   if (isFull(stack)) {
+    //스택의 최대값을 두배로 늘임
     stack->capacity *= 2;
+    //기존 스택을 늘린 스택으로 옮겨줌
     stack->arr = (char *)realloc(stack->arr, sizeof(char) * stack->capacity);
   }
-  stack->arr[stack->size] = element;
-  stack->size++;
+  //스택의 해당 위치에 값을 넣어줌
+  stack->arr[stack->index] = element;
+  //스택의 위치를 한칸 올림
+  stack->index++;
 }
 
-// Function to pop an element from the stack
 char pop(Stack *stack) {
+  //스택의 위치가 가장 아래라면
   if (isEmpty(stack)) {
+    //더이상 남은게 없다는 메세지 출력
     printf("Error: stack is empty.\n");
-    return '\0'; // Return '\0' as an error code
+    return '\0'; 
   }
-  stack->size--;
-  return stack->arr[stack->size];
+  //스택의 위치를 하나 내리고
+  stack->index--;
+  //해당 위치의 스택값을 반환
+  return stack->arr[stack->index];
 }
 
-// Function to peek at the top element of the stack
 char peek(Stack *stack) {
+  //스택의 위치가 가장 아래라면 종료
   if (isEmpty(stack)) {
-    return '\0'; // Return '\0' if the stack is empty
+    return '\0'; 
   }
-  return stack->arr[stack->size - 1];
+  //스택 위치 하나 아래값을 반환
+  return stack->arr[stack->index - 1];
 }
 
-// Function to determine the precedence of an operator
 int precedence(char ch) {
   switch (ch) {
   case '+':
@@ -71,44 +80,61 @@ int precedence(char ch) {
   }
 }
 
-// Function to convert infix expression to postfix
 void infixToPostfix(char *infix, char *postfix) {
+  //괄호를 처리할 스택 선언
   Stack *stack = createStack();
   int i = 0, j = 0;
   char ch;
 
+  //배열의 끝을 '\0'으로 표시했으므로 나올 때까지 반복
   while (infix[i] != '\0') {
+    //operater에 infix값을 넣어줌
     ch = infix[i];
 
+    //숫자가 오거나 알파벳이 오면
     if (isalpha(ch) || isdigit(ch)) {
+      //postfix에 그냥 담아줌
       postfix[j] = ch;
+      //다음번으로 올려줌
       j++;
-    } else if (ch == '(') {
+    } 
+    //여는 괄호가 오면 스택에 담아줌
+    else if (ch == '(') {
       push(stack, ch);
-    } else if (ch == ')') {
+    } 
+    //닫는 괄호가 오면 
+    else if (ch == ')') {
+      //여는 괄호가 나올때까지 postfix에 넣어줌
       while (peek(stack) != '(') {
         postfix[j] = pop(stack);
         j++;
       }
+      //여는 괄호는 postfix에 안넣고 pop해서 버림
       pop(stack); // Remove the '(' from the stack
-    } else {
+    } 
+    //연산자가 오면
+    else {
+      //스택이 끝이 아니고 
       while (!isEmpty(stack) && precedence(ch) <= precedence(peek(stack))) {
+        //postfix배열에 값을 다 담아줌
         postfix[j] = pop(stack);
         j++;
       }
       push(stack, ch);
     }
-
+    //다음 infix배열값으로 넘어감
     i++;
   }
 
+  //스택이 비어있지 않다면, 남은 스택값을 모두 postfix배열에 넣어줌
   while (!isEmpty(stack)) {
     postfix[j] = pop(stack);
     j++;
   }
-
+  //postfix배열 마지막에 '\0'을 넣어서 끝임을 표현
   postfix[j] = '\0';
 
+  //스택은 메모리 할당을 해제
   free(stack->arr);
   free(stack);
 }
