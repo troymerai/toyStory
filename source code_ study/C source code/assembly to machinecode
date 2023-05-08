@@ -1,0 +1,686 @@
+'''
+add     $t0, $s1, $s2
+add     $t1, $s3, $s4
+sub	    $s0, $t0, $t1
+addi	$s2, $s1, 2
+add     $s1, $s2, $t0
+addi	$s2, $s1, -2
+addi	$s2, $s1, -4
+lw		$t0, 32($s3)
+addi    $s3, $s3, 1
+sw		$t0, 48($s3)
+
+
+
+------
+test.s내용에 빈줄, 화이트스페이스 있는거 정상임
+
+'''
+
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define INITIAL_CAPACITY 20
+#define ROWS 10
+#define COLS 10
+
+char *shampt = "00000";
+char *addfunct = "100000";
+char *addifunct = "000000";
+char *subfunct = "010000";
+char *lwfunct = "000000";
+char *swfunct = "000000";
+
+char *addop = "000000";
+char *addiop = "100000";
+char *subop = "000000";
+char *lwop = "000001";
+char *swop = "000010";
+
+char *regt0 = "8";
+char *regt1 = "9";
+char *regt2 = "10";
+char *regt3 = "11";
+char *regt4 = "12";
+char *regt5 = "13";
+char *regt6 = "14";
+char *regt7 = "15";
+char *regt8 = "24";
+char *regt9 = "25";
+char *regs0 = "16";
+char *regs1 = "17";
+char *regs2 = "18";
+char *regs3 = "19";
+char *regs4 = "20";
+char *regs5 = "21";
+char *regs6 = "22";
+char *regs7 = "23";
+
+// instruction 정보 담을 구조체 선언
+typedef struct Element {
+  char *opcode;
+  char *rs;
+  char *rt;
+  char *rd;
+  char *shampt;
+  char *funct;
+  char *imm;
+} Element;
+
+//구조체 생성
+Element *createElement() {
+  Element *form = (Element *)malloc(sizeof(Element));
+  form->opcode = (char *)malloc(sizeof(char) * INITIAL_CAPACITY);
+  form->rs = (char *)malloc(sizeof(char) * INITIAL_CAPACITY);
+  form->rt = (char *)malloc(sizeof(char) * INITIAL_CAPACITY);
+  form->rd = (char *)malloc(sizeof(char) * INITIAL_CAPACITY);
+  form->shampt = (char *)malloc(sizeof(char) * INITIAL_CAPACITY);
+  form->funct = (char *)malloc(sizeof(char) * INITIAL_CAPACITY);
+  form->imm = (char *)malloc(sizeof(char) * 20);
+
+  // form->opcode = NULL;
+  // form->rs = NULL;
+  // form->rt = NULL;
+  // form->rd = NULL;
+  // form->shampt = NULL;
+  // form->funct = NULL;
+  // form->imm = NULL;
+  return form;
+}
+
+// rs 레지스터용 2진수 변환기
+char *decimal_to_binary_rs(struct Element form) {
+  // 입력된 10진수 문자열을 정수형으로 변환
+  int decimal = atoi(form.rs);
+  // 변환된 정수형 값을 2진수 문자열로 변환
+  char *binary_str =
+      (char *)malloc(6 * sizeof(char)); // 최대 5비트까지 표현 가능
+  int i = 4; // 뒤에서부터 문자열을 채우기 위한 인덱스
+  while (decimal > 0 && i >= 0) {
+    binary_str[i] = decimal % 2 + '0'; // 나머지를 문자로 변환하여 문자열에 추가
+    decimal /= 2;
+    i--;
+  }
+  // 문자열의 끝에 널문자를 추가하여 완성
+  binary_str[5] = '\0';
+
+  // 문자열의 앞쪽에 0을 추가
+  while (i >= 0) {
+    binary_str[i] = '0';
+    i--;
+  }
+
+  // 문자열의 시작부터 0이 아닌 첫 번째 문자의 주소를 반환
+  return binary_str;
+}
+
+// rt 레지스터용 2진수 변환기
+char *decimal_to_binary_rt(struct Element form) {
+  // 입력된 10진수 문자열을 정수형으로 변환
+  int decimal = atoi(form.rt);
+  // 변환된 정수형 값을 2진수 문자열로 변환
+  char *binary_str =
+      (char *)malloc(6 * sizeof(char)); // 최대 5비트까지 표현 가능
+  int i = 4; // 뒤에서부터 문자열을 채우기 위한 인덱스
+  while (decimal > 0 && i >= 0) {
+    binary_str[i] = decimal % 2 + '0'; // 나머지를 문자로 변환하여 문자열에 추가
+    decimal /= 2;
+    i--;
+  }
+  // 문자열의 끝에 널문자를 추가하여 완성
+  binary_str[5] = '\0';
+
+  // 문자열의 앞쪽에 0을 추가
+  while (i >= 0) {
+    binary_str[i] = '0';
+    i--;
+  }
+
+  // 문자열의 시작부터 0이 아닌 첫 번째 문자의 주소를 반환
+  return binary_str;
+}
+
+// rd 레지스터용 2진수 변환기
+char *decimal_to_binary_rd(struct Element form) {
+  // 입력된 10진수 문자열을 정수형으로 변환
+  int decimal = atoi(form.rd);
+  // 변환된 정수형 값을 2진수 문자열로 변환
+  char *binary_str =
+      (char *)malloc(6 * sizeof(char)); // 최대 5비트까지 표현 가능
+  int i = 4; // 뒤에서부터 문자열을 채우기 위한 인덱스
+  while (decimal > 0 && i >= 0) {
+    binary_str[i] = decimal % 2 + '0'; // 나머지를 문자로 변환하여 문자열에 추가
+    decimal /= 2;
+    i--;
+  }
+  // 문자열의 끝에 널문자를 추가하여 완성
+  binary_str[5] = '\0';
+
+  // 문자열의 앞쪽에 0을 추가
+  while (i >= 0) {
+    binary_str[i] = '0';
+    i--;
+  }
+
+  // 문자열의 시작부터 0이 아닌 첫 번째 문자의 주소를 반환
+  return binary_str;
+}
+
+//레지스터 번호 부여
+void set_register(struct Element form) {
+
+  // rs 레지스터 변환
+  if (strcmp(form.rs, "$t0") == 0) {
+    strcpy(form.rs, regt0);
+    char *binary_str = decimal_to_binary_rs(form);
+    strcpy(form.rs, binary_str);
+  }
+  if (strcmp(form.rs, "$t1") == 0) {
+    strcpy(form.rs, regt1);
+    char *binary_str = decimal_to_binary_rs(form);
+    strcpy(form.rs, binary_str);
+  }
+  if (strcmp(form.rs, "$t2") == 0) {
+    strcpy(form.rs, regt2);
+    char *binary_str = decimal_to_binary_rs(form);
+    strcpy(form.rs, binary_str);
+  }
+  if (strcmp(form.rs, "$t3") == 0) {
+    strcpy(form.rs, regt3);
+    char *binary_str = decimal_to_binary_rs(form);
+    strcpy(form.rs, binary_str);
+  }
+  if (strcmp(form.rs, "$t4") == 0) {
+    strcpy(form.rs, regt4);
+    char *binary_str = decimal_to_binary_rs(form);
+    strcpy(form.rs, binary_str);
+  }
+  if (strcmp(form.rs, "$t5") == 0) {
+    strcpy(form.rs, regt5);
+    char *binary_str = decimal_to_binary_rs(form);
+    strcpy(form.rs, binary_str);
+  }
+  if (strcmp(form.rs, "$t6") == 0) {
+    strcpy(form.rs, regt6);
+    char *binary_str = decimal_to_binary_rs(form);
+    strcpy(form.rs, binary_str);
+  }
+  if (strcmp(form.rs, "$t7") == 0) {
+    strcpy(form.rs, regt7);
+    char *binary_str = decimal_to_binary_rs(form);
+    strcpy(form.rs, binary_str);
+  }
+  if (strcmp(form.rs, "$t8") == 0) {
+    strcpy(form.rs, regt8);
+    char *binary_str = decimal_to_binary_rs(form);
+    strcpy(form.rs, binary_str);
+  }
+  if (strcmp(form.rs, "$t9") == 0) {
+    strcpy(form.rs, regt9);
+    char *binary_str = decimal_to_binary_rs(form);
+    strcpy(form.rs, binary_str);
+  }
+  if (strcmp(form.rs, "$s0") == 0) {
+    strcpy(form.rs, regs0);
+    char *binary_str = decimal_to_binary_rs(form);
+    strcpy(form.rs, binary_str);
+  }
+  if (strcmp(form.rs, "$s1") == 0) {
+    strcpy(form.rs, regs1);
+    char *binary_str = decimal_to_binary_rs(form);
+    strcpy(form.rs, binary_str);
+  }
+  if (strcmp(form.rs, "$s2") == 0) {
+    strcpy(form.rs, regs2);
+    char *binary_str = decimal_to_binary_rs(form);
+    strcpy(form.rs, binary_str);
+  }
+  if (strcmp(form.rs, "$s3") == 0) {
+    strcpy(form.rs, regs3);
+    char *binary_str = decimal_to_binary_rs(form);
+    strcpy(form.rs, binary_str);
+  }
+  if (strcmp(form.rs, "$s4") == 0) {
+    strcpy(form.rs, regs4);
+    char *binary_str = decimal_to_binary_rs(form);
+    strcpy(form.rs, binary_str);
+  }
+  if (strcmp(form.rs, "$s5") == 0) {
+    strcpy(form.rs, regs5);
+    char *binary_str = decimal_to_binary_rs(form);
+    strcpy(form.rs, binary_str);
+  }
+  if (strcmp(form.rs, "$s6") == 0) {
+    strcpy(form.rs, regs6);
+    char *binary_str = decimal_to_binary_rs(form);
+    strcpy(form.rs, binary_str);
+  }
+  if (strcmp(form.rs, "$s7") == 0) {
+    strcpy(form.rs, regs7);
+    char *binary_str = decimal_to_binary_rs(form);
+    strcpy(form.rs, binary_str);
+  }
+
+  // rt 레지스터 변환
+  if (strcmp(form.rt, "$t0") == 0) {
+    strcpy(form.rt, regt0);
+    char *binary_str = decimal_to_binary_rt(form);
+    strcpy(form.rt, binary_str);
+  }
+  if (strcmp(form.rt, "$t1") == 0) {
+    strcpy(form.rt, regt1);
+    char *binary_str = decimal_to_binary_rt(form);
+    strcpy(form.rt, binary_str);
+  }
+  if (strcmp(form.rt, "$t2") == 0) {
+    strcpy(form.rt, regt2);
+    char *binary_str = decimal_to_binary_rt(form);
+    strcpy(form.rt, binary_str);
+  }
+  if (strcmp(form.rt, "$t3") == 0) {
+    strcpy(form.rt, regt3);
+    char *binary_str = decimal_to_binary_rt(form);
+    strcpy(form.rt, binary_str);
+  }
+  if (strcmp(form.rt, "$t4") == 0) {
+    strcpy(form.rt, regt4);
+    char *binary_str = decimal_to_binary_rt(form);
+    strcpy(form.rt, binary_str);
+  }
+  if (strcmp(form.rt, "$t5") == 0) {
+    strcpy(form.rt, regt5);
+    char *binary_str = decimal_to_binary_rt(form);
+    strcpy(form.rt, binary_str);
+  }
+  if (strcmp(form.rt, "$t6") == 0) {
+    strcpy(form.rt, regt6);
+    char *binary_str = decimal_to_binary_rt(form);
+    strcpy(form.rt, binary_str);
+  }
+  if (strcmp(form.rt, "$t7") == 0) {
+    strcpy(form.rt, regt7);
+    char *binary_str = decimal_to_binary_rt(form);
+    strcpy(form.rt, binary_str);
+  }
+  if (strcmp(form.rt, "$t8") == 0) {
+    strcpy(form.rt, regt8);
+    char *binary_str = decimal_to_binary_rt(form);
+    strcpy(form.rt, binary_str);
+  }
+  if (strcmp(form.rt, "$t9") == 0) {
+    strcpy(form.rt, regt9);
+    char *binary_str = decimal_to_binary_rt(form);
+    strcpy(form.rt, binary_str);
+  }
+  if (strcmp(form.rt, "$s0") == 0) {
+    strcpy(form.rt, regs0);
+    char *binary_str = decimal_to_binary_rt(form);
+    strcpy(form.rt, binary_str);
+  }
+  if (strcmp(form.rt, "$s1") == 0) {
+    strcpy(form.rt, regs1);
+    char *binary_str = decimal_to_binary_rt(form);
+    strcpy(form.rt, binary_str);
+  }
+  if (strcmp(form.rt, "$s2") == 0) {
+    strcpy(form.rt, regs2);
+    char *binary_str = decimal_to_binary_rt(form);
+    strcpy(form.rt, binary_str);
+  }
+  if (strcmp(form.rt, "$s3") == 0) {
+    strcpy(form.rt, regs3);
+    char *binary_str = decimal_to_binary_rt(form);
+    strcpy(form.rt, binary_str);
+  }
+  if (strcmp(form.rt, "$s4") == 0) {
+    strcpy(form.rt, regs4);
+    char *binary_str = decimal_to_binary_rt(form);
+    strcpy(form.rt, binary_str);
+  }
+  if (strcmp(form.rt, "$s5") == 0) {
+    strcpy(form.rt, regs5);
+    char *binary_str = decimal_to_binary_rt(form);
+    strcpy(form.rt, binary_str);
+  }
+  if (strcmp(form.rt, "$s6") == 0) {
+    strcpy(form.rt, regs6);
+    char *binary_str = decimal_to_binary_rt(form);
+    strcpy(form.rt, binary_str);
+  }
+  if (strcmp(form.rt, "$s7") == 0) {
+    strcpy(form.rt, regs7);
+    char *binary_str = decimal_to_binary_rt(form);
+    strcpy(form.rt, binary_str);
+  }
+
+  // rd 레지스터 변환
+  if (strcmp(form.rd, "$t0") == 0) {
+    strcpy(form.rd, regt0);
+    char *binary_str = decimal_to_binary_rd(form);
+    strcpy(form.rd, binary_str);
+  }
+  if (strcmp(form.rd, "$t1") == 0) {
+    strcpy(form.rd, regt1);
+    char *binary_str = decimal_to_binary_rd(form);
+    strcpy(form.rd, binary_str);
+  }
+  if (strcmp(form.rd, "$t2") == 0) {
+    strcpy(form.rd, regt2);
+    char *binary_str = decimal_to_binary_rd(form);
+    strcpy(form.rd, binary_str);
+  }
+  if (strcmp(form.rd, "$t3") == 0) {
+    strcpy(form.rd, regt3);
+    char *binary_str = decimal_to_binary_rd(form);
+    strcpy(form.rd, binary_str);
+  }
+  if (strcmp(form.rd, "$t4") == 0) {
+    strcpy(form.rd, regt4);
+    char *binary_str = decimal_to_binary_rd(form);
+    strcpy(form.rd, binary_str);
+  }
+  if (strcmp(form.rd, "$t5") == 0) {
+    strcpy(form.rd, regt5);
+    char *binary_str = decimal_to_binary_rd(form);
+    strcpy(form.rd, binary_str);
+  }
+  if (strcmp(form.rd, "$t6") == 0) {
+    strcpy(form.rd, regt6);
+    char *binary_str = decimal_to_binary_rd(form);
+    strcpy(form.rd, binary_str);
+  }
+  if (strcmp(form.rd, "$t7") == 0) {
+    strcpy(form.rd, regt7);
+    char *binary_str = decimal_to_binary_rd(form);
+    strcpy(form.rd, binary_str);
+  }
+  if (strcmp(form.rd, "$t8") == 0) {
+    strcpy(form.rd, regt8);
+    char *binary_str = decimal_to_binary_rd(form);
+    strcpy(form.rd, binary_str);
+  }
+  if (strcmp(form.rd, "$t9") == 0) {
+    strcpy(form.rd, regt9);
+    char *binary_str = decimal_to_binary_rd(form);
+    strcpy(form.rd, binary_str);
+  }
+  if (strcmp(form.rd, "$s0") == 0) {
+    strcpy(form.rd, regs0);
+    char *binary_str = decimal_to_binary_rd(form);
+    strcpy(form.rd, binary_str);
+  }
+  if (strcmp(form.rd, "$s1") == 0) {
+    strcpy(form.rd, regs1);
+    char *binary_str = decimal_to_binary_rd(form);
+    strcpy(form.rd, binary_str);
+  }
+  if (strcmp(form.rd, "$s2") == 0) {
+    strcpy(form.rd, regs2);
+    char *binary_str = decimal_to_binary_rd(form);
+    strcpy(form.rd, binary_str);
+  }
+  if (strcmp(form.rd, "$s3") == 0) {
+    strcpy(form.rd, regs3);
+    char *binary_str = decimal_to_binary_rd(form);
+    strcpy(form.rd, binary_str);
+  }
+  if (strcmp(form.rd, "$s4") == 0) {
+    strcpy(form.rd, regs4);
+    char *binary_str = decimal_to_binary_rd(form);
+    strcpy(form.rd, binary_str);
+  }
+  if (strcmp(form.rd, "$s5") == 0) {
+    strcpy(form.rd, regs5);
+    char *binary_str = decimal_to_binary_rd(form);
+    strcpy(form.rd, binary_str);
+  }
+  if (strcmp(form.rd, "$s6") == 0) {
+    strcpy(form.rd, regs6);
+    char *binary_str = decimal_to_binary_rd(form);
+    strcpy(form.rd, binary_str);
+  }
+  if (strcmp(form.rd, "$s7") == 0) {
+    strcpy(form.rd, regs7);
+    char *binary_str = decimal_to_binary_rd(form);
+    strcpy(form.rd, binary_str);
+  }
+}
+
+// imm용 2진수 변환기
+char *decimal_to_binary_imm(struct Element form) {
+  // 입력된 10진수 문자열을 정수형으로 변환
+  int decimal = atoi(form.imm);
+
+  // 16비트에서 넘치는 부분은 0으로 채우기
+  decimal = decimal & 0xFFFF;
+
+  // 음수일 경우 2의 보수 처리
+  if (decimal < 0) {
+    decimal = abs(decimal); // 절댓값 구하기
+    decimal = ~decimal + 1; // 1의 보수를 구하고 1을 더해 2의 보수 구하기
+  }
+
+  // 변환된 정수형 값을 2진수 문자열로 변환
+  char *binary_str =
+      (char *)malloc(17 * sizeof(char)); // 최대 16비트까지 표현 가능
+  int i = 15; // 뒤에서부터 문자열을 채우기 위한 인덱스
+  while (decimal > 0 && i >= 0) {
+    binary_str[i] = decimal % 2 + '0'; // 나머지를 문자로 변환하여 문자열에 추가
+    decimal /= 2;
+    i--;
+  }
+
+  // 문자열의 끝에 널문자를 추가하여 완성
+  binary_str[16] = '\0';
+
+  // // 문자열의 앞쪽에 0을 추가
+  while (i >= 0) {
+    binary_str[i] = '0';
+    i--;
+  }
+
+  // 문자열의 시작부터 0이 아닌 첫 번째 문자의 주소를 반환
+  return binary_str;
+}
+
+//한줄씩 받은거 잘라서 구조체에 넣어주기
+void parse_line(char line[]) {
+  Element *form = createElement();
+  char *token;
+  int j = 0;
+  char result[1000];
+
+  token = strtok(line, ", \t\n\r)(");
+
+  strcpy(form->opcode, token);
+
+  // r-format
+  if (strcmp(token, "add") == 0 || strcmp(token, "sub") == 0) {
+    while (token != NULL) {
+      //첫번째 단어
+      if (j == 0) {
+        // strcpy(form->opcode, token);
+        //  opcode에 따라 funct값 할당
+        if (strcmp(form->opcode, "add") == 0) {
+          strcpy(form->funct, addfunct);
+        }
+        if (strcmp(form->opcode, "sub") == 0) {
+          strcpy(form->funct, subfunct);
+        }
+        if (strcmp(form->opcode, "add") == 0) {
+          strcpy(form->opcode, addop);
+        }
+        if (strcmp(form->opcode, "sub") == 0) {
+          strcpy(form->opcode, subop);
+        }
+      }
+      //두번째 단어
+      if (j == 1) {
+        strcpy(form->rd, token);
+        //레지스터 번호 부여
+
+        set_register(*form);
+      }
+      //세번째 단어
+      if (j == 2) {
+        strcpy(form->rs, token);
+        //레지스터 번호 부여
+
+        set_register(*form);
+      }
+      //네번째 단어
+      if (j == 3) {
+        strcpy(form->rt, token);
+        //레지스터 번호 부여
+
+        set_register(*form);
+      }
+      j++;
+      token = strtok(NULL, ", \t\n\r");
+    }
+
+    //여기서 이어 붙이기
+    strcpy(result, form->opcode);
+    strcat(result, form->rs);
+    strcat(result, form->rt);
+    strcat(result, form->rd);
+    strcat(result, shampt);
+    // strcat(result, "8");
+    strcat(result, form->funct);
+    printf("%s", result);
+  }
+  // i-format
+  else if (strcmp(token, "addi") == 0) {
+    while (token != NULL) {
+      //첫번째 단어
+      if (j == 0) {
+        strcpy(form->opcode, token);
+        if (strcmp(form->opcode, "addi") == 0) {
+          strcpy(form->opcode, addiop);
+        }
+      }
+      //두번째 단어
+      if (j == 1) {
+        strcpy(form->rt, token);
+        //레지스터 번호 부여
+
+        set_register(*form);
+      }
+      //세번째 단어
+      if (j == 2) {
+        strcpy(form->rs, token);
+        //레지스터 번호 부여
+
+        set_register(*form);
+      }
+      //숫자
+      if (j == 3) {
+        strcpy(form->imm, token);
+        char *binary_str = decimal_to_binary_imm(*form);
+        strcpy(form->imm, binary_str);
+      }
+      j++;
+      token = strtok(NULL, ", \t\n\r");
+    }
+    if (strcmp(form->opcode, addiop) == 0) {
+      strcpy(form->funct, addifunct);
+    }
+    //여기서 이어붙이기
+    strcpy(result, form->opcode);
+    strcat(result, form->rs);
+    strcat(result, form->rt);
+    strcat(result, form->imm);
+    // strcat(result, shampt);
+    // strcat(result, form->funct);
+
+    printf("%s", result);
+  }
+
+  // load, store function
+  else if (strcmp(token, "lw") == 0 || strcmp(token, "sw") == 0) {
+    while (token != NULL) {
+      //첫번째 단어
+      if (j == 0) {
+        strcpy(form->opcode, token);
+        if (strcmp(form->opcode, "lw") == 0) {
+          strcpy(form->opcode, lwop);
+        }
+        if (strcmp(form->opcode, "sw") == 0) {
+          strcpy(form->opcode, swop);
+        }
+      }
+      //두번째 단어
+      if (j == 1) {
+        strcpy(form->rt, token);
+        set_register(*form);
+      }
+      if (j == 2) {
+        strcpy(form->imm, token);
+        char *binary_str = decimal_to_binary_imm(*form);
+        strcpy(form->imm, binary_str);
+      }
+      if (j == 3) {
+        strcpy(form->rs, token);
+        set_register(*form);
+      }
+      j++;
+      token = strtok(NULL, ", \t\n\r)(");
+    }
+    // opcode에 따라 funct 할당
+    if (strcmp(form->opcode, lwop) == 0) {
+      strcpy(form->funct, lwfunct);
+    }
+    if (strcmp(form->opcode, swop) == 0) {
+      strcpy(form->funct, swfunct);
+    }
+    //여기서 이어붙이기
+    strcpy(result, form->opcode);
+    strcat(result, form->rs);
+    strcat(result, form->rt);
+    strcat(result, form->imm);
+    // strcat(result, shampt);
+    // strcat(result, form->funct);
+
+    printf("%s", result);
+  }
+
+  // strcpy(result,form->opcode);
+  free(form->opcode);
+  free(form->rs);
+  free(form->rt);
+  free(form->rd);
+  free(form->shampt);
+  free(form->funct);
+  free(form->imm);
+  free(form);
+}
+
+int main() {
+  char line[100];
+
+  FILE *fp;
+
+  fp = fopen("test.s", "r");
+  if (fp == NULL) {
+    printf("Error opening file.\n");
+    return 0;
+  }
+
+  while (fgets(line, sizeof(line), fp) != NULL) {
+    if (line[0] == '\n')
+      break;
+    // printf("line: %s", line);
+    // // 내용이 있는 줄만 출력
+    // if (strlen(line) <= 0) {
+    //   break;
+    // }
+    parse_line(line);
+    printf("\n");
+  }
+
+  fclose(fp);
+
+  return 0;
+}
